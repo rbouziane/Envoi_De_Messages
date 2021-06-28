@@ -1,112 +1,78 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Switch, StatusBar, Text, NativeModules, PermissionsAndroid } from 'react-native'
+import NavigationBar from 'react-native-navbar-color'
 
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const DirectSms = NativeModules.DirectSms;
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [isLightTheme, setIsLightTheme] = useState(false);
+  const toggleSwitch = () => setIsLightTheme(previousState => !previousState);
+
+  const sendDirectSms = async () => {
+    try {
+        const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.SEND_SMS,
+            {
+                title: 'Tadiwanashe App Sms Permission',
+                message:
+                    'Tadiwanashe App needs access to your inbox ' +
+                    'so you can send messages in background.',
+                buttonNeutral: 'Ask Me Later',
+                buttonNegative: 'Cancel',
+                buttonPositive: 'OK',
+            },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            for (let i = 0; i < 5; i++) {
+              DirectSms.sendDirectSms('0695869890', 'This is a direct message from your app.');
+            }
+        } else {
+            console.log('SMS permission denied');
+        }
+    } catch (err) {
+        console.warn(err);
+    }
+  }
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={{flex: 1, backgroundColor: isLightTheme ? "white" : "#36393f"}}>
+        <StatusBar barStyle={isLightTheme ? "dark-content" : "light-content"} backgroundColor={isLightTheme ? "white" : "#36393f"}/>
+        {NavigationBar.setColor(isLightTheme ? '#f5f5f5' :'#202225')}
+        <View style={{flex: 1, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+          <Text style={{color: "#36393f", fontSize: 16}}>Thème clair</Text>
+          <Switch
+            trackColor={{false: "#0F4C81", true: "#0F4C81"}}
+            thumbColor={isLightTheme ? "white" : "white"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={isLightTheme}/>
+          <Text style={{color: "white", fontSize: 16}}>Thème sombre</Text>
+        </View>
+        <View style={{flex: 9, justifyContent: "center", alignItems: "center"}}>
+          <TouchableOpacity style={{backgroundColor: "#0F4C81", paddingHorizontal: 40, paddingVertical: 10, borderRadius: 10}} onPress={() => sendDirectSms()}>
+            <Text style={{fontSize: 20, color: "white"}}>Envoyer SMS</Text>
+          </TouchableOpacity>
+        </View>
     </View>
   );
 };
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
 export default App;
+
+/* const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  button: {
+    padding: 10,
+    borderWidth: 0.5,
+    borderColor: '#bbb',
+    margin: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+}); */
