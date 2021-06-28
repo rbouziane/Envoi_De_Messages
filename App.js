@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Switch, StatusBar, TextInput, Text, NativeModules, PermissionsAndroid, SafeAreaView } from 'react-native'
+import { View, TouchableOpacity, Switch, StatusBar, StyleSheet, TextInput, Text, NativeModules, PermissionsAndroid, SafeAreaView } from 'react-native'
 import NavigationBar from 'react-native-navbar-color'
 
 const DirectSms = NativeModules.DirectSms;
@@ -9,6 +9,7 @@ const App = () => {
   const [isLightTheme, setIsLightTheme] = useState(false);
   const toggleSwitch = () => setIsLightTheme(previousState => !previousState);
 
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [messageText, setMessageText] = useState('');
 
   const sendDirectSms = async () => {
@@ -27,7 +28,10 @@ const App = () => {
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
             for (let i = 0; i < 1; i++) {
-              await DirectSms.sendDirectSms('0695869890', messageText, (status) => {console.log('Le message envoyé:', status)});
+              if (phoneNumber.length > 0 && messageText.length > 0)
+                await DirectSms.sendDirectSms(phoneNumber, messageText, (status) => {console.log("L'envoi du message a bien fonctionné:", status)});
+              else 
+                console.log("SMS pas envoyé")
             }
         } else {
             console.log('SMS permission denied');
@@ -54,16 +58,14 @@ const App = () => {
         <View style={{flex: 10, justifyContent: "center", alignItems: "center"}}>
         <TextInput
           selectionColor={"#0F4C81"}
-          style={{
-            height: 40,
-            marginBottom: 30,
-            width: '80%',
-            margin: 12,
-            borderWidth: 1.5,
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            borderColor: isLightTheme ? "#36393f" : "white"
-          }}
+          style={[styles.textInput, {borderColor: isLightTheme ? "#36393f" : "white"}]}
+          onChangeText={(text) => setPhoneNumber(text)}
+          value={phoneNumber}
+          placeholderTextColor={isLightTheme ? "grey" : "#D3D3D3"}
+          placeholder="Entrez le numéro de téléphone"/>
+        <TextInput
+          selectionColor={"#0F4C81"}
+          style={[styles.textInput, {borderColor: isLightTheme ? "#36393f" : "white"}]}
           onChangeText={(text) => setMessageText(text)}
           value={messageText}
           placeholderTextColor={isLightTheme ? "grey" : "#D3D3D3"}
@@ -77,3 +79,15 @@ const App = () => {
 };
 
 export default App;
+
+const styles = StyleSheet.create({
+  textInput: {
+    height: 40,
+    marginBottom: 30,
+    width: '80%',
+    margin: 12,
+    borderWidth: 1.5,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+  }
+});
