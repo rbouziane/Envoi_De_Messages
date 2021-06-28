@@ -21,13 +21,13 @@ public class DirectSmsModule extends ReactContextBaseJavaModule {
     }
  
     @ReactMethod
-    public void sendDirectSms(String phoneNumber, String msg) {
+    public void sendDirectSms(String phoneNumber, String msg, Callback booleanCallback) {
         try {      
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, msg, null, null);
-            System.out.println("message sent successfully.");
+            booleanCallback.invoke(true);
         } catch (Exception ex) {
-            System.out.println("couldn't send message.");
-        } 
+            booleanCallback.invoke(false);
+        }
     }
 }
